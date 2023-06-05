@@ -1,3 +1,3 @@
-## gin-controller
+## server
 
-gin-controller is packages for dinozor base codes
+This repository is packages for dinozor base http server codes
