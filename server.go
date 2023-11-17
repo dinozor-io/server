@@ -1,46 +1,36 @@
-package gincon
+package server
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/dinozor-io/interfaces"
 )
 
 type Server struct {
-	gin    *gin.Engine
-	Port   string
-	Routes []Route
-	Init   func()
+	engine interfaces.Engine
+	router interfaces.Router
+	port   string
+}
+
+func New(engine interfaces.Engine, router interfaces.Router) *Server {
+	return &Server{
+		engine: engine,
+		router: router,
+		port:   ":8080",
+	}
+}
+
+func (s *Server) ChangePort(port string) {
+	s.port = port
+}
+
+func (s *Server) Router() interfaces.Router {
+	return s.router
+}
+
+func (s *Server) Port() string {
+	return s.port
 }
 
 func (s *Server) Serve() {
-	s.LoadDefault()
-	s.Init()
-	s.gin.Run(s.Port)
-}
-
-func (s *Server) LoadDefault() {
-	if s.Port == "" {
-		s.Port = ":8080"
-	}
-
-	if s.gin == nil {
-		s.gin = gin.New()
-	}
-
-	if s.Init == nil {
-		s.Init = func() {
-			for _, r := range s.Routes {
-				cont := r.Init()
-				switch r.Method {
-				case GET:
-					s.gin.GET(r.Path, cont.Callback)
-				case POST:
-					s.gin.POST(r.Path, cont.Callback)
-				case PUT:
-					s.gin.PUT(r.Path, cont.Callback)
-				case DELETE:
-					s.gin.DELETE(r.Path, cont.Callback)
-				}
-			}
-		}
-	}
+	s.engine.Init(s)
+	s.engine.Run()
 }
